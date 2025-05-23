@@ -11,17 +11,17 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type AuthService struct {
+	db             *gorm.DB
 	validator      *validator.Validate
 	userRepository *repository.UserRepository
 }
 
-func NewAuthService(validator *validator.Validate, userRepository *repository.UserRepository) *AuthService {
+func NewAuthService(db *gorm.DB, validator *validator.Validate, userRepository *repository.UserRepository) *AuthService {
 	return &AuthService{
 		validator:      validator,
 		userRepository: userRepository,
@@ -34,7 +34,11 @@ func (a *AuthService) HandleRegister(ctx context.Context, req *dto.RegisterReque
 		return err
 	}
 
-	err = a.userRepository.TakeUserByEmail(ctx, &entity.User{}, req.Email)
+	user := &entity.User{
+		Email: req.Email,
+	}
+
+	err = a.userRepository.Take(ctx, a.db, user)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("email already in use")
 	}
@@ -45,13 +49,12 @@ func (a *AuthService) HandleRegister(ctx context.Context, req *dto.RegisterReque
 	}
 
 	newUser := &entity.User{
-		ID:       uuid.NewString(),
 		Username: req.Username,
 		Email:    req.Email,
 		Password: string(bc),
 	}
 
-	return a.userRepository.Create(ctx, newUser)
+	return a.userRepository.Create(ctx, a.db, newUser)
 }
 
 func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (string, error) {
@@ -60,9 +63,11 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 		return "", err
 	}
 
-	user := new(entity.User)
+	user := &entity.User{
+		Email: req.Email,
+	}
 
-	err = a.userRepository.TakeUserByEmail(ctx, user, req.Email)
+	err = a.userRepository.Take(ctx, a.db, user)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return "", errors.New("email or password wrong")
 	}
@@ -75,6 +80,6 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 	return util.CreateJWT(jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.Username,
-		"exp":  time.Now().Add(15 * time.Minute).Unix(),
+		"exp":  time.Now().Add(24 * time.Hour).Unix(),
 	})
 }

@@ -8,19 +8,17 @@ import (
 )
 
 type UserRepository struct {
-	db *gorm.DB
+	Repository[entity.User]
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{
-		db: db,
-	}
+func NewUserRepository() *UserRepository {
+	return &UserRepository{}
 }
 
-func (u *UserRepository) TakeUserByEmail(ctx context.Context, dst *entity.User, email string) error {
-	return u.db.WithContext(ctx).Take(dst, "email = ?", email).Error
+func (u *UserRepository) TakeUserByEmail(ctx context.Context, db *gorm.DB, dst *entity.User, email string) error {
+	return db.WithContext(ctx).Select("id", "username", "email", "password").Take(dst, "email = ?", email).Error
 }
 
-func (u *UserRepository) Create(ctx context.Context, value *entity.User) error {
-	return u.db.Create(value).Error
+func (u *UserRepository) TakeUserById(ctx context.Context, db *gorm.DB, id string, dst *entity.User) error {
+	return db.WithContext(ctx).Select("id", "username", "email").Where("id = ?", id).Take(dst).Error
 }

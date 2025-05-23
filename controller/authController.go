@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"net/http"
 	"posting-api/dto"
 	"posting-api/service"
 	"posting-api/util"
@@ -48,12 +47,7 @@ func (a *AuthController) Login(ctx echo.Context) error {
 		return util.HttpResponseError(ctx, "failed login", err)
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "access_token"
-	cookie.Value = "Bearer " + accToken
-	cookie.Path = "/"
-
-	ctx.SetCookie(cookie)
-
-	return util.HttpResponseSuccess(ctx, "success login", nil)
+	return util.HttpResponseSuccess(ctx, "success login", echo.Map{
+		"token": accToken,
+	})
 }

@@ -30,17 +30,24 @@ func Init() *App {
 
 func (a *App) Run() error {
 	// repository
-	userRepository := repository.NewUserRepository(a.db)
+	userRepository := repository.NewUserRepository()
+	postRepository := repository.NewPostRepository()
 
 	// service
-	authService := service.NewAuthService(a.validator, userRepository)
+	authService := service.NewAuthService(a.db, a.validator, userRepository)
+	userService := service.NewUserService(a.db, a.validator, userRepository)
+	postService := service.NewPostService(a.db, a.validator, postRepository)
 
 	// controller
 	authController := controller.NewAuthController(authService)
+	userController := controller.NewUserController(userService)
+	postController := controller.NewPostController(postService)
 
 	route.SetRoute(&route.RouteConfig{
 		Echo:           a.echo,
 		AuthController: authController,
+		UserController: userController,
+		PostController: postController,
 	})
 
 	return a.echo.Start(fmt.Sprintf(":%v", os.Getenv("APP_PORT")))
