@@ -20,6 +20,8 @@ func GetErrorValidateMessageStruct(validationErrors validator.ValidationErrors) 
 			errorsMap[field] = "invalid email format"
 		case "min":
 			errorsMap[field] = field + " must be at least " + validationError.Param() + " characters"
+		case "max":
+			errorsMap[field] = field + " maximal " + validationError.Param() + " characters"
 		default:
 			errorsMap[field] = "invalid " + field
 		}

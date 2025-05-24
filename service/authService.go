@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -23,6 +24,7 @@ type AuthService struct {
 
 func NewAuthService(db *gorm.DB, validator *validator.Validate, userRepository *repository.UserRepository) *AuthService {
 	return &AuthService{
+		db:             db,
 		validator:      validator,
 		userRepository: userRepository,
 	}
@@ -49,6 +51,7 @@ func (a *AuthService) HandleRegister(ctx context.Context, req *dto.RegisterReque
 	}
 
 	newUser := &entity.User{
+		ID:       uuid.NewString(),
 		Username: req.Username,
 		Email:    req.Email,
 		Password: string(bc),
@@ -80,6 +83,23 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 	return util.CreateJWT(jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.Username,
-		"exp":  time.Now().Add(24 * time.Hour).Unix(),
+		"exp":  time.Now().Add(2 * time.Minute).Unix(),
+	})
+}
+
+func (a *AuthService) HandleRefresh(ctx context.Context, claims jwt.MapClaims) (string, error) {
+	user := &entity.User{
+		ID: claims["sub"].(string),
+	}
+
+	err := a.userRepository.Take(ctx, a.db, user)
+	if err != nil {
+		return "", err
+	}
+
+	return util.CreateJWT(jwt.MapClaims{
+		"sub":  user.ID,
+		"name": user.Username,
+		"exp":  time.Now().Add(15 * time.Minute).Unix(),
 	})
 }

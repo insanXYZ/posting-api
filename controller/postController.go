@@ -81,3 +81,49 @@ func (p *PostController) GetAllPosts(ctx echo.Context) error {
 
 	return util.HttpResponseSuccess(ctx, "sucess get all posts", posts)
 }
+
+func (p *PostController) GetPost(ctx echo.Context) error {
+	req := new(dto.GetPostRequest)
+	err := ctx.Bind(req)
+	if err != nil {
+		return err
+	}
+
+	post, err := p.postService.HandleGetPost(ctx.Request().Context(), req)
+	if err != nil {
+		return util.HttpResponseError(ctx, "failed get post", err)
+	}
+
+	return util.HttpResponseSuccess(ctx, "success get post", post)
+}
+
+func (p *PostController) LikePost(ctx echo.Context) error {
+	claims := util.GetClaims(ctx)
+	req := new(dto.LikePostRequest)
+	err := ctx.Bind(req)
+	if err != nil {
+		return err
+	}
+
+	err = p.postService.HandleLikePost(ctx.Request().Context(), claims, req)
+	if err != nil {
+		return util.HttpResponseError(ctx, "failed like post", err)
+	}
+	return util.HttpResponseSuccess(ctx, "success like post", nil)
+}
+
+func (p *PostController) CommentPost(ctx echo.Context) error {
+	claims := util.GetClaims(ctx)
+	req := new(dto.CommentPostRequest)
+	err := ctx.Bind(req)
+	if err != nil {
+		return err
+	}
+
+	err = p.postService.HandleCommentPost(ctx.Request().Context(), claims, req)
+	if err != nil {
+		return util.HttpResponseError(ctx, "failed send comment", err)
+	}
+
+	return util.HttpResponseSuccess(ctx, "success send comment", nil)
+}

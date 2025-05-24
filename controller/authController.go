@@ -51,3 +51,15 @@ func (a *AuthController) Login(ctx echo.Context) error {
 		"token": accToken,
 	})
 }
+
+func (a *AuthController) Refresh(ctx echo.Context) error {
+	claims := util.GetClaims(ctx)
+	newToken, err := a.userService.HandleRefresh(ctx.Request().Context(), claims)
+	if err != nil {
+		return util.HttpResponseError(ctx, "failed refresh token", err)
+	}
+
+	return util.HttpResponseSuccess(ctx, "success refresh token", echo.Map{
+		"token": newToken,
+	})
+}

@@ -32,11 +32,12 @@ func (a *App) Run() error {
 	// repository
 	userRepository := repository.NewUserRepository()
 	postRepository := repository.NewPostRepository()
+	commentRepository := repository.NewCommentRepository()
 
 	// service
 	authService := service.NewAuthService(a.db, a.validator, userRepository)
 	userService := service.NewUserService(a.db, a.validator, userRepository)
-	postService := service.NewPostService(a.db, a.validator, postRepository)
+	postService := service.NewPostService(a.db, a.validator, userRepository, postRepository, commentRepository)
 
 	// controller
 	authController := controller.NewAuthController(authService)

@@ -20,16 +20,17 @@ type UserService struct {
 func NewUserService(db *gorm.DB, validator *validator.Validate, userRepository *repository.UserRepository) *UserService {
 	return &UserService{
 		validator:      validator,
+		db:             db,
 		userRepository: userRepository,
 	}
 }
 
 func (u *UserService) HandleGetUser(ctx context.Context, claims jwt.MapClaims) (*entity.User, error) {
-	user := new(entity.User)
-
-	err := u.userRepository.Take(ctx, u.db, &entity.User{
+	user := &entity.User{
 		ID: claims["sub"].(string),
-	})
+	}
+
+	err := u.userRepository.Take(ctx, u.db, user)
 	if err != nil {
 		return nil, err
 	}
@@ -56,5 +57,5 @@ func (u *UserService) HandleUpdateUser(ctx context.Context, claims jwt.MapClaims
 	user.Password = req.Password
 	user.Username = req.Username
 
-	return u.userRepository.Save(ctx, u.db, user)
+	return u.userRepository.Update(ctx, u.db, user)
 }

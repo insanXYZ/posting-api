@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"posting-api/dto"
 	"posting-api/service"
 	"posting-api/util"
@@ -22,7 +21,6 @@ func NewUserController(userService *service.UserService) *UserController {
 
 func (u *UserController) GetUser(ctx echo.Context) error {
 	claims := ctx.Get("user").(jwt.MapClaims)
-	fmt.Println(claims)
 
 	user, err := u.userService.HandleGetUser(ctx.Request().Context(), claims)
 	if err != nil {

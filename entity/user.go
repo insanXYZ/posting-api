@@ -3,7 +3,6 @@ package entity
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -15,9 +14,6 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at" gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time      `json:"updated_at" gorm:"column:updated_at;autoCreatetime;autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
-}
-
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	u.ID = uuid.NewString()
-	return nil
+	Posts     []*Post        `json:"posts" gorm:"foreignKey:created_by;references:id"`
+	LikePosts []*Post        `json:"like_posts" gorm:"many2many:user_like_post;foreignKey:id;joinForeignKey:user_id;references:id;joinReferences:post_id"`
 }
