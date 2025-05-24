@@ -5,12 +5,12 @@ type CreatePostRequest struct {
 }
 
 type UpdatePostRequest struct {
-	ID      string `param:"id" validate:"required"`
+	ID      string `param:"postId" validate:"required"`
 	Content string `json:"content" validate:"required"`
 }
 
 type DeletePostRequest struct {
-	ID string `param:"id" validate:"required"`
+	ID string `param:"postId" validate:"required"`
 }
 
 type GetAllPostsRequest struct {
@@ -18,14 +18,14 @@ type GetAllPostsRequest struct {
 }
 
 type GetPostRequest struct {
-	ID string `param:"id"`
+	ID string `param:"postId"`
 }
 
 type LikePostRequest struct {
-	ID string `param:"id"`
+	ID string `param:"postId"`
 }
 
 type CommentPostRequest struct {
-	ID      string `param:"id" validate:"required"`
+	ID      string `param:"postId" validate:"required"`
 	Comment string `json:"comment" validate:"required,max=255"`
 }

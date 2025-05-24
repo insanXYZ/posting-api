@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -53,9 +54,27 @@ func (u *UserService) HandleUpdateUser(ctx context.Context, claims jwt.MapClaims
 		return err
 	}
 
+	b, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
 	user.Email = req.Email
-	user.Password = req.Password
+	user.Password = string(b)
 	user.Username = req.Username
 
 	return u.userRepository.Update(ctx, u.db, user)
+}
+
+func (u *UserService) HandleDeleteUser(ctx context.Context, claims jwt.MapClaims) error {
+	user := &entity.User{
+		ID: claims["sub"].(string),
+	}
+
+	err := u.userRepository.Take(ctx, u.db, user)
+	if err != nil {
+		return err
+	}
+
+	return u.userRepository.Delete(ctx, u.db, user)
 }

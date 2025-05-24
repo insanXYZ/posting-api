@@ -106,7 +106,9 @@ func (p *PostService) HandleGetPost(ctx context.Context, req *dto.GetPostRequest
 	return post, err
 }
 
-func (p *PostService) HandleLikePost(ctx context.Context, claims jwt.MapClaims, req *dto.LikePostRequest) error {
+func (p *PostService) HandleLikePost(ctx context.Context, claims jwt.MapClaims, req *dto.LikePostRequest) (bool, error) {
+	var liked bool
+
 	err := p.db.Transaction(func(tx *gorm.DB) error {
 		user := &entity.User{
 			ID: claims["sub"].(string),
@@ -127,11 +129,13 @@ func (p *PostService) HandleLikePost(ctx context.Context, claims jwt.MapClaims, 
 		}
 
 		if count := p.postRepository.CountUserLikePost(ctx, tx, post, user); count == 0 {
+			liked = true
 			return p.postRepository.Liked(ctx, tx, post, user)
 		}
+		liked = false
 		return p.postRepository.Unliked(ctx, tx, post, user)
 	})
-	return err
+	return liked, err
 }
 
 func (p *PostService) HandleCommentPost(ctx context.Context, claims jwt.MapClaims, req *dto.CommentPostRequest) error {

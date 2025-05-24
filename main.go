@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	// // load environments
+	// load environments
 	err := godotenv.Load()
 	if err != nil {
 		panic(err.Error())

@@ -20,11 +20,11 @@ func NewPostRepository() *PostRepository {
 }
 
 func (p *PostRepository) TakeDetailPost(ctx context.Context, db *gorm.DB, entity *entity.Post) error {
-	return db.WithContext(ctx).Joins("User").Find(entity).Error
+	return db.WithContext(ctx).Joins("User").Preload("Liked").Preload("Comments").Find(entity).Error
 }
 
 func (p *PostRepository) TakeDetailPostsWithPagination(ctx context.Context, db *gorm.DB, entities *[]entity.Post, page int) error {
-	return db.WithContext(ctx).Joins("User").Preload("Liked").Offset(page * Limit_Pagination).Limit(Limit_Pagination).Find(entities).Error
+	return db.WithContext(ctx).Joins("User").Preload("Liked").Preload("Comments").Offset(page * Limit_Pagination).Limit(Limit_Pagination).Find(entities).Error
 }
 
 func (p *PostRepository) Liked(ctx context.Context, db *gorm.DB, post *entity.Post, user *entity.User) error {

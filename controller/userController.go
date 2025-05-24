@@ -44,3 +44,13 @@ func (u *UserController) UpdateUser(ctx echo.Context) error {
 	}
 	return util.HttpResponseSuccess(ctx, "success update user", nil)
 }
+
+func (u *UserController) DeleteUser(ctx echo.Context) error {
+	claims := util.GetClaims(ctx)
+
+	err := u.userService.HandleDeleteUser(ctx.Request().Context(), claims)
+	if err != nil {
+		return util.HttpResponseError(ctx, "failed delete user", err)
+	}
+	return util.HttpResponseSuccess(ctx, "success delete user", nil)
+}

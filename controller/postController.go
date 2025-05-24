@@ -105,11 +105,18 @@ func (p *PostController) LikePost(ctx echo.Context) error {
 		return err
 	}
 
-	err = p.postService.HandleLikePost(ctx.Request().Context(), claims, req)
+	message := "post unliked successfully"
+
+	liked, err := p.postService.HandleLikePost(ctx.Request().Context(), claims, req)
 	if err != nil {
 		return util.HttpResponseError(ctx, "failed like post", err)
 	}
-	return util.HttpResponseSuccess(ctx, "success like post", nil)
+
+	if liked {
+		message = "post liked successfully"
+	}
+
+	return util.HttpResponseSuccess(ctx, message, nil)
 }
 
 func (p *PostController) CommentPost(ctx echo.Context) error {

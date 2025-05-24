@@ -26,19 +26,20 @@ func SetRoute(cfg *RouteConfig) {
 	users := api.Group("/users", HasJWT)
 	users.GET("", cfg.UserController.GetUser)
 	users.PUT("", cfg.UserController.UpdateUser)
+	users.DELETE("", cfg.UserController.DeleteUser)
 
 	// api/users/posts
 	userPosts := users.Group("/posts")
 	userPosts.POST("", cfg.PostController.CreatePost)
-	userPosts.PUT("/:id", cfg.PostController.UpdatePost)
-	userPosts.DELETE("/:id", cfg.PostController.DeletePost)
+	userPosts.PUT("/:postId", cfg.PostController.UpdatePost)
+	userPosts.DELETE("/:postId", cfg.PostController.DeletePost)
 
 	// api/posts
 	posts := api.Group("/posts")
 	posts.GET("", cfg.PostController.GetAllPosts)
-	posts.GET("/:id", cfg.PostController.GetPost)
+	posts.GET("/:postId", cfg.PostController.GetPost)
 
 	postGuard := posts.Group("", HasJWT)
-	postGuard.PUT("/:id/like", cfg.PostController.LikePost)
-	postGuard.POST("/:id/comment", cfg.PostController.GetAllPosts)
+	postGuard.PUT("/:postId/like", cfg.PostController.LikePost)
+	postGuard.POST("/:postId/comment", cfg.PostController.CommentPost)
 }

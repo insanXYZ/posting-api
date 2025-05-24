@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -18,6 +17,9 @@ var (
 )
 
 func SetMiddleware() {
+	missingJwtMessage := "missing or malformed jwt"
+	invalidJwtMessage := "invalid or expired jwt"
+
 	HasJWT = echojwt.WithConfig(echojwt.Config{
 		SuccessHandler: func(c echo.Context) {
 			c.Set("user", c.Get("user").(*jwt.Token).Claims.(jwt.MapClaims))
@@ -28,13 +30,18 @@ func SetMiddleware() {
 
 	RefreshJWT = func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
 			authorization := c.Request().Header.Get("Authorization")
 			if authorization == "" {
-				return c.NoContent(http.StatusUnauthorized)
+				return c.JSON(http.StatusUnauthorized, echo.Map{
+					"message": missingJwtMessage,
+				})
 			}
 
 			if !strings.Contains(authorization, "Bearer ") {
-				return c.NoContent(http.StatusUnauthorized)
+				return c.JSON(http.StatusUnauthorized, echo.Map{
+					"message": missingJwtMessage,
+				})
 			}
 
 			tokenString := strings.Replace(authorization, "Bearer ", "", -1)
@@ -57,11 +64,11 @@ func SetMiddleware() {
 			}
 
 			if err != nil {
-				if int64(claims["exp"].(float64)) <= time.Now().Unix() {
-					return setAndNext()
+				if _, ok := claims["exp"]; !ok {
+					return c.JSON(http.StatusUnauthorized, echo.Map{
+						"message": invalidJwtMessage,
+					})
 				}
-
-				return c.NoContent(http.StatusUnauthorized)
 			}
 
 			return setAndNext()

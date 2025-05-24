@@ -20,24 +20,30 @@ type App struct {
 	validator *validator.Validate
 }
 
+func (a *App) GetEcho() *echo.Echo {
+	return a.echo
+}
+
+func (a *App) GetDb() *gorm.DB {
+	return a.db
+}
+
 func Init() *App {
-	return &App{
+	app := &App{
 		echo:      config.NewEcho(),
 		db:        config.NewGorm(),
 		validator: config.NewValidator(),
 	}
-}
 
-func (a *App) Run() error {
 	// repository
 	userRepository := repository.NewUserRepository()
 	postRepository := repository.NewPostRepository()
 	commentRepository := repository.NewCommentRepository()
 
 	// service
-	authService := service.NewAuthService(a.db, a.validator, userRepository)
-	userService := service.NewUserService(a.db, a.validator, userRepository)
-	postService := service.NewPostService(a.db, a.validator, userRepository, postRepository, commentRepository)
+	authService := service.NewAuthService(app.db, app.validator, userRepository)
+	userService := service.NewUserService(app.db, app.validator, userRepository)
+	postService := service.NewPostService(app.db, app.validator, userRepository, postRepository, commentRepository)
 
 	// controller
 	authController := controller.NewAuthController(authService)
@@ -45,11 +51,15 @@ func (a *App) Run() error {
 	postController := controller.NewPostController(postService)
 
 	route.SetRoute(&route.RouteConfig{
-		Echo:           a.echo,
+		Echo:           app.echo,
 		AuthController: authController,
 		UserController: userController,
 		PostController: postController,
 	})
 
+	return app
+}
+
+func (a *App) Run() error {
 	return a.echo.Start(fmt.Sprintf(":%v", os.Getenv("APP_PORT")))
 }

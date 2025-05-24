@@ -7,7 +7,6 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 func NewGorm() *gorm.DB {
@@ -19,7 +18,7 @@ func NewGorm() *gorm.DB {
 		os.Getenv("DB_PORT"),
 	)
 	gorm, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		// Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		log.Fatal(err.Error())

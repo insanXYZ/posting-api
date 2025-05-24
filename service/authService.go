@@ -40,8 +40,8 @@ func (a *AuthService) HandleRegister(ctx context.Context, req *dto.RegisterReque
 		Email: req.Email,
 	}
 
-	err = a.userRepository.Take(ctx, a.db, user)
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	count := a.userRepository.Count(ctx, a.db, user)
+	if count == 1 {
 		return errors.New("email already in use")
 	}
 
@@ -83,7 +83,8 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 	return util.CreateJWT(jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.Username,
-		"exp":  time.Now().Add(2 * time.Minute).Unix(),
+		// "exp":  time.Now().Add(2 * time.Minute).Unix(),
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 }
 
