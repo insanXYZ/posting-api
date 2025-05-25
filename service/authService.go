@@ -83,8 +83,7 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 	return util.CreateJWT(jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.Username,
-		// "exp":  time.Now().Add(2 * time.Minute).Unix(),
-		"exp": time.Now().Add(24 * time.Hour).Unix(),
+		"exp":  time.Now().Add(15 * time.Minute).Unix(),
 	})
 }
 
