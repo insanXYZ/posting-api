@@ -3,6 +3,7 @@ package controller
 import (
 	"posting-api/dto"
 	"posting-api/dto/converter"
+	"posting-api/dto/message"
 	"posting-api/service"
 	"posting-api/util"
 
@@ -25,10 +26,10 @@ func (u *UserController) GetUser(ctx echo.Context) error {
 
 	user, err := u.userService.HandleGetUser(ctx.Request().Context(), claims)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed get user", err)
+		return util.HttpResponseError(ctx, message.FAILED_GET_USER, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success get user", converter.UserToResponseDto(user))
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_GET_USER, converter.UserToResponseDto(user))
 }
 
 func (u *UserController) UpdateUser(ctx echo.Context) error {
@@ -41,9 +42,9 @@ func (u *UserController) UpdateUser(ctx echo.Context) error {
 	}
 	err = u.userService.HandleUpdateUser(ctx.Request().Context(), claims, req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed update user", err)
+		return util.HttpResponseError(ctx, message.FAILED_UPDATE_USER, err)
 	}
-	return util.HttpResponseSuccess(ctx, "success update user", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_UPDATE_USER, nil)
 }
 
 func (u *UserController) DeleteUser(ctx echo.Context) error {
@@ -51,7 +52,7 @@ func (u *UserController) DeleteUser(ctx echo.Context) error {
 
 	err := u.userService.HandleDeleteUser(ctx.Request().Context(), claims)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed delete user", err)
+		return util.HttpResponseError(ctx, message.FAILED_DELETE_USER, err)
 	}
-	return util.HttpResponseSuccess(ctx, "success delete user", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_DELETE_USER, nil)
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"posting-api/dto"
+	"posting-api/dto/message"
 	"posting-api/service"
 	"posting-api/util"
 
@@ -28,10 +29,10 @@ func (a *AuthController) Register(ctx echo.Context) error {
 
 	err = a.userService.HandleRegister(ctx.Request().Context(), req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed register", err)
+		return util.HttpResponseError(ctx, message.FAILED_REGISTER, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success register", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_REGISTER, nil)
 }
 
 func (a *AuthController) Login(ctx echo.Context) error {
@@ -44,10 +45,10 @@ func (a *AuthController) Login(ctx echo.Context) error {
 
 	accToken, err := a.userService.HandleLogin(ctx.Request().Context(), req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed login", err)
+		return util.HttpResponseError(ctx, message.FAILED_LOGIN, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success login", echo.Map{
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_LOGIN, echo.Map{
 		"token": accToken,
 	})
 }
@@ -56,10 +57,10 @@ func (a *AuthController) Refresh(ctx echo.Context) error {
 	claims := util.GetClaims(ctx)
 	newToken, err := a.userService.HandleRefresh(ctx.Request().Context(), claims)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed refresh token", err)
+		return util.HttpResponseError(ctx, message.FAILED_REFRESH_TOKEN, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success refresh token", echo.Map{
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_REFRESH_TOKEN, echo.Map{
 		"token": newToken,
 	})
 }

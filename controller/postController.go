@@ -3,6 +3,7 @@ package controller
 import (
 	"posting-api/dto"
 	"posting-api/dto/converter"
+	"posting-api/dto/message"
 	"posting-api/service"
 	"posting-api/util"
 
@@ -29,10 +30,10 @@ func (p *PostController) CreatePost(ctx echo.Context) error {
 
 	err = p.postService.HandleCreatePost(ctx.Request().Context(), claims, req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed create post", err)
+		return util.HttpResponseError(ctx, message.FAILED_CREATE_POST, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success create post", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_CREATE_POST, nil)
 
 }
 
@@ -48,10 +49,10 @@ func (p *PostController) UpdatePost(ctx echo.Context) error {
 	err = p.postService.HandleUpdatePost(ctx.Request().Context(), claims, req)
 
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed update post", err)
+		return util.HttpResponseError(ctx, message.FAILED_UPDATE_POST, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success update post", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_UPDATE_POST, nil)
 }
 
 func (p *PostController) DeletePost(ctx echo.Context) error {
@@ -65,10 +66,10 @@ func (p *PostController) DeletePost(ctx echo.Context) error {
 
 	err = p.postService.HandleDeletePost(ctx.Request().Context(), claims, req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed delete post", err)
+		return util.HttpResponseError(ctx, message.FAILED_DELETE_POST, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success delete post", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_DELETE_POST, nil)
 }
 
 func (p *PostController) GetAllPosts(ctx echo.Context) error {
@@ -77,10 +78,10 @@ func (p *PostController) GetAllPosts(ctx echo.Context) error {
 
 	posts, err := p.postService.HandleGetAllPosts(ctx.Request().Context(), req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed get all posts", err)
+		return util.HttpResponseError(ctx, message.FAILED_GET_ALL_POSTS, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success get all posts", converter.PostsToReponseDto(posts))
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_GET_ALL_POSTS, converter.PostsToReponseDto(posts))
 }
 
 func (p *PostController) GetPost(ctx echo.Context) error {
@@ -92,10 +93,10 @@ func (p *PostController) GetPost(ctx echo.Context) error {
 
 	post, err := p.postService.HandleGetPost(ctx.Request().Context(), req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed get post", err)
+		return util.HttpResponseError(ctx, message.FAILED_GET_POST, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success get post", converter.PostToResponseDto(post))
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_GET_POST, converter.PostToResponseDto(post))
 }
 
 func (p *PostController) LikePost(ctx echo.Context) error {
@@ -106,18 +107,18 @@ func (p *PostController) LikePost(ctx echo.Context) error {
 		return err
 	}
 
-	message := "post unliked successfully"
+	msg := message.SUCCESS_UNLIKE_POST
 
 	liked, err := p.postService.HandleLikePost(ctx.Request().Context(), claims, req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed like post", err)
+		return util.HttpResponseError(ctx, message.FAILED_LIKED_POST, err)
 	}
 
 	if liked {
-		message = "post liked successfully"
+		msg = message.SUCCESS_LIKE_POST
 	}
 
-	return util.HttpResponseSuccess(ctx, message, nil)
+	return util.HttpResponseSuccess(ctx, msg, nil)
 }
 
 func (p *PostController) CommentPost(ctx echo.Context) error {
@@ -130,8 +131,8 @@ func (p *PostController) CommentPost(ctx echo.Context) error {
 
 	err = p.postService.HandleCommentPost(ctx.Request().Context(), claims, req)
 	if err != nil {
-		return util.HttpResponseError(ctx, "failed send comment", err)
+		return util.HttpResponseError(ctx, message.FAILED_COMMENT_POST, err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success send comment", nil)
+	return util.HttpResponseSuccess(ctx, message.SUCCESS_COMMENT_POST, nil)
 }
