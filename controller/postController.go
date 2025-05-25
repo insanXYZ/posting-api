@@ -2,6 +2,7 @@ package controller
 
 import (
 	"posting-api/dto"
+	"posting-api/dto/converter"
 	"posting-api/service"
 	"posting-api/util"
 
@@ -79,7 +80,7 @@ func (p *PostController) GetAllPosts(ctx echo.Context) error {
 		return util.HttpResponseError(ctx, "failed get all posts", err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "sucess get all posts", posts)
+	return util.HttpResponseSuccess(ctx, "success get all posts", converter.PostsToReponseDto(posts))
 }
 
 func (p *PostController) GetPost(ctx echo.Context) error {
@@ -94,7 +95,7 @@ func (p *PostController) GetPost(ctx echo.Context) error {
 		return util.HttpResponseError(ctx, "failed get post", err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success get post", post)
+	return util.HttpResponseSuccess(ctx, "success get post", converter.PostToResponseDto(post))
 }
 
 func (p *PostController) LikePost(ctx echo.Context) error {

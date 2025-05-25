@@ -84,8 +84,8 @@ func (p *PostService) HandleDeletePost(ctx context.Context, claims jwt.MapClaims
 	return p.postRepository.Delete(ctx, p.db, post)
 }
 
-func (p *PostService) HandleGetAllPosts(ctx context.Context, req *dto.GetAllPostsRequest) ([]entity.Post, error) {
-	var posts []entity.Post
+func (p *PostService) HandleGetAllPosts(ctx context.Context, req *dto.GetAllPostsRequest) ([]*entity.Post, error) {
+	var posts []*entity.Post
 
 	if req.Page <= 1 {
 		req.Page = 0

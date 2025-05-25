@@ -1,5 +1,14 @@
 package dto
 
+type PostDto struct {
+	ID         string        `json:"id,omitempty"`
+	Content    string        `json:"content,omitempty"`
+	CreatedBy  *UserDto      `json:"created_by,omitempty"`
+	LikeNumber int           `json:"like_number,omitempty"`
+	Liked      []*UserDto    `json:"liked,omitempty"`
+	Comments   []*CommentDto `json:"comments,omitempty"`
+}
+
 type CreatePostRequest struct {
 	Content string `json:"content" validate:"required"`
 }

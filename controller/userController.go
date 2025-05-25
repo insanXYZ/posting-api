@@ -2,6 +2,7 @@ package controller
 
 import (
 	"posting-api/dto"
+	"posting-api/dto/converter"
 	"posting-api/service"
 	"posting-api/util"
 
@@ -27,7 +28,7 @@ func (u *UserController) GetUser(ctx echo.Context) error {
 		return util.HttpResponseError(ctx, "failed get user", err)
 	}
 
-	return util.HttpResponseSuccess(ctx, "success get user", *user)
+	return util.HttpResponseSuccess(ctx, "success get user", converter.UserToResponseDto(user))
 }
 
 func (u *UserController) UpdateUser(ctx echo.Context) error {
