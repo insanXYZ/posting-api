@@ -58,7 +58,7 @@ func TestLogin(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	table := []struct {
+	scenarios := []struct {
 		name               string
 		request            *entity.User
 		expectedStatusCode int
@@ -89,9 +89,9 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	for _, test := range table {
-		t.Run(test.name, func(t *testing.T) {
-			b, _ = json.Marshal(*test.request)
+	for _, scenario := range scenarios {
+		t.Run(scenario.name, func(t *testing.T) {
+			b, _ = json.Marshal(*scenario.request)
 
 			reqLogin := httptest.NewRequest(http.MethodPost, "/api/login", bytes.NewReader(b))
 			reqLogin.Header.Set("Content-Type", "application/json")
@@ -100,7 +100,7 @@ func TestLogin(t *testing.T) {
 
 			server.ServeHTTP(recLogin, reqLogin)
 
-			assert.Equal(t, test.expectedStatusCode, recLogin.Code)
+			assert.Equal(t, scenario.expectedStatusCode, recLogin.Code)
 		})
 	}
 }
