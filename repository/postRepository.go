@@ -20,7 +20,7 @@ func NewPostRepository() *PostRepository {
 }
 
 func (p *PostRepository) TakeDetailPost(ctx context.Context, db *gorm.DB, entity *entity.Post) error {
-	return db.WithContext(ctx).Joins("User").Preload("Liked").Preload("Comments").Find(entity).Error
+	return db.WithContext(ctx).Joins("User").Preload("Liked").Preload("Comments").Take(entity).Error
 }
 
 func (p *PostRepository) TakeDetailPostsWithPagination(ctx context.Context, db *gorm.DB, entities *[]*entity.Post, page int) error {
