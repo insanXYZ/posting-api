@@ -60,10 +60,10 @@ func (a *AuthService) HandleRegister(ctx context.Context, req *dto.RegisterReque
 	return a.userRepository.Create(ctx, a.db, newUser)
 }
 
-func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (string, error) {
+func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (string, string, error) {
 	err := a.validator.Struct(req)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	user := &entity.User{
@@ -72,19 +72,34 @@ func (a *AuthService) HandleLogin(ctx context.Context, req *dto.LoginRequest) (s
 
 	err = a.userRepository.Take(ctx, a.db, user)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", errors.New("email or password wrong")
+		return "", "", errors.New("email or password wrong")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		return "", errors.New("email or password wrong")
+		return "", "", errors.New("email or password wrong")
 	}
 
-	return util.CreateJWT(jwt.MapClaims{
+	accToken, err := util.CreateJWT(jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.Username,
 		"exp":  time.Now().Add(15 * time.Minute).Unix(),
 	})
+
+	if err != nil {
+		return "", "", err
+	}
+
+	refToken, err := util.CreateJWT(jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),
+	})
+
+	if err != nil {
+		return "", "", err
+	}
+
+	return accToken, refToken, nil
 }
 
 func (a *AuthService) HandleRefresh(ctx context.Context, claims jwt.MapClaims) (string, error) {
@@ -98,8 +113,7 @@ func (a *AuthService) HandleRefresh(ctx context.Context, claims jwt.MapClaims) (
 	}
 
 	return util.CreateJWT(jwt.MapClaims{
-		"sub":  user.ID,
-		"name": user.Username,
-		"exp":  time.Now().Add(15 * time.Minute).Unix(),
+		"sub": user.ID,
+		"exp": time.Now().Add(15 * time.Minute).Unix(),
 	})
 }

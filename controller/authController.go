@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"net/http"
 	"posting-api/dto"
 	"posting-api/dto/message"
 	"posting-api/service"
 	"posting-api/util"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -43,13 +45,24 @@ func (a *AuthController) Login(ctx echo.Context) error {
 		return err
 	}
 
-	accToken, err := a.userService.HandleLogin(ctx.Request().Context(), req)
+	accToken, refToken, err := a.userService.HandleLogin(ctx.Request().Context(), req)
 	if err != nil {
 		return util.HttpResponseError(ctx, message.FAILED_LOGIN, err)
 	}
 
+	cookie := &http.Cookie{
+		Name:     "refresh-token",
+		Path:     "/api/refresh",
+		Secure:   true,
+		Value:    "Bearer " + refToken,
+		Expires:  time.Now().Add(7 * 24 * time.Hour),
+		HttpOnly: true,
+	}
+
+	ctx.SetCookie(cookie)
+
 	return util.HttpResponseSuccess(ctx, message.SUCCESS_LOGIN, echo.Map{
-		"token": accToken,
+		"access_token": "Bearer " + accToken,
 	})
 }
 
@@ -61,6 +74,6 @@ func (a *AuthController) Refresh(ctx echo.Context) error {
 	}
 
 	return util.HttpResponseSuccess(ctx, message.SUCCESS_REFRESH_TOKEN, echo.Map{
-		"token": newToken,
+		"access_token": "Bearer " + newToken,
 	})
 }

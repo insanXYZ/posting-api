@@ -40,4 +40,7 @@ const (
 
 	SUCCESS_COMMENT_POST = "comment added successfully"
 	FAILED_COMMENT_POST  = "failed to add comment"
+
+	MISSING_REFRESH_TOKEN = "missing or malformed refresh token"
+	INVALID_REFRESH_TOKEN = "invalid or expired refresh token"
 )

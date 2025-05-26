@@ -11,10 +11,12 @@ func GetErrorResponse(msg string, err error) dto.Response {
 		Message: msg,
 	}
 
-	if ValidationErrors, ok := err.(validator.ValidationErrors); ok {
-		res.Error = GetErrorValidateMessageStruct(ValidationErrors)
-	} else {
-		res.Message = err.Error()
+	if err != nil {
+		if ValidationErrors, ok := err.(validator.ValidationErrors); ok {
+			res.Error = GetErrorValidateMessageStruct(ValidationErrors)
+		} else {
+			res.Message = err.Error()
+		}
 	}
 
 	return res

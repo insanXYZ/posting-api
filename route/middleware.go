@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"posting-api/dto/message"
+	"posting-api/util"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,14 +14,10 @@ import (
 )
 
 var (
-	HasJWT     echo.MiddlewareFunc
-	RefreshJWT echo.MiddlewareFunc
+	HasJWT, HasRefreshToken echo.MiddlewareFunc
 )
 
 func SetMiddleware() {
-	missingJwtMessage := "missing or malformed jwt"
-	invalidJwtMessage := "invalid or expired jwt"
-
 	HasJWT = echojwt.WithConfig(echojwt.Config{
 		SuccessHandler: func(c echo.Context) {
 			c.Set("user", c.Get("user").(*jwt.Token).Claims.(jwt.MapClaims))
@@ -28,25 +26,21 @@ func SetMiddleware() {
 		SigningMethod: echojwt.AlgorithmHS256,
 	})
 
-	RefreshJWT = func(next echo.HandlerFunc) echo.HandlerFunc {
+	HasRefreshToken = func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-
-			authorization := c.Request().Header.Get("Authorization")
-			if authorization == "" {
-				return c.JSON(http.StatusUnauthorized, echo.Map{
-					"message": missingJwtMessage,
-				})
+			cookie, err := c.Cookie("refresh-token")
+			if err != nil {
+				return util.HttpResponseError(c, message.MISSING_REFRESH_TOKEN, nil, http.StatusUnauthorized)
 			}
 
-			if !strings.Contains(authorization, "Bearer ") {
-				return c.JSON(http.StatusUnauthorized, echo.Map{
-					"message": missingJwtMessage,
-				})
+			if !strings.Contains(cookie.Value, "Bearer ") {
+				return util.HttpResponseError(c, message.MISSING_REFRESH_TOKEN, nil, http.StatusUnauthorized)
 			}
 
-			tokenString := strings.Replace(authorization, "Bearer ", "", -1)
+			tokenString := strings.Replace(cookie.Value, "Bearer ", "", -1)
+
 			claims := jwt.MapClaims{}
-			_, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+			_, err = jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, errors.New("invalid signing method")
 				}
@@ -65,13 +59,12 @@ func SetMiddleware() {
 
 			if err != nil {
 				if _, ok := claims["exp"]; !ok {
-					return c.JSON(http.StatusUnauthorized, echo.Map{
-						"message": invalidJwtMessage,
-					})
+					return util.HttpResponseError(c, message.INVALID_REFRESH_TOKEN, nil, http.StatusUnauthorized)
 				}
 			}
 
 			return setAndNext()
 		}
 	}
+
 }

@@ -20,7 +20,7 @@ func SetRoute(cfg *RouteConfig) {
 	api := cfg.Echo.Group("/api")
 	api.POST("/register", cfg.AuthController.Register)
 	api.POST("/login", cfg.AuthController.Login)
-	api.POST("/refresh", cfg.AuthController.Refresh, RefreshJWT)
+	api.POST("/refresh", cfg.AuthController.Refresh, HasRefreshToken)
 
 	// api/users
 	users := api.Group("/users", HasJWT)
