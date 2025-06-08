@@ -2,7 +2,6 @@ package route
 
 import (
 	"posting-api/controller"
-	"posting-api/dto"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,12 +21,6 @@ func SetRoute(cfg *RouteConfig) {
 	api.POST("/register", cfg.AuthController.Register)
 	api.POST("/login", cfg.AuthController.Login)
 	api.POST("/refresh", cfg.AuthController.Refresh, HasRefreshToken)
-	api.GET("/anu", func(c echo.Context) error {
-		return c.XML(200, &dto.UserDto{
-			Username: "insan",
-			Email:    "insan.nazal@gmail.com",
-		})
-	})
 
 	// api/users
 	users := api.Group("/users", HasJWT)
